@@ -97,6 +97,16 @@ pytest -v
 ```
 
 Tests cover the core correlation logic (`find_suspect_deployment`), including edge cases: no prior deployment, and multiple deployments where only the most recent (not oldest) before the incident should be flagged.
-
 ---
+
+## Roadmap
+
+- [x] Mock data generator + ingestion pipeline
+- [x] Pydantic validation, structured logging, typed config
+- [x] REST API with auto-generated docs
+- [x] Dockerized, CI-tested
+- [ ] RAG layer over historical incident post-mortems
+- [ ] Multi-model reasoning loop (GPT-4o + Claude cross-verification)
+- [ ] Autonomous revert-PR / rollback actions
+- [ ] ChatOps delivery via Slack/Teams
 
