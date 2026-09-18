@@ -1,0 +1,33 @@
+[
+  {
+    "deployment_id": "deploy-1041",
+    "timestamp": "2025-01-14T09:30:00Z",
+    "service": "checkout-api",
+    "title": "Fix: Correct tax calculation rounding error",
+    "author": "priya.nair",
+    "commit_sha": "a1b2c3d",
+    "pr_url": "https://github.com/example-org/checkout-api/pull/1041",
+    "status": "success"
+  },
+  {
+    "deployment_id": "deploy-1042",
+    "timestamp": "2025-01-15T11:15:00Z",
+    "service": "checkout-api",
+    "title": "Chore: Update logging library to v3.2.1",
+    "author": "sam.okafor",
+    "commit_sha": "d4e5f6a",
+    "pr_url": "https://github.com/example-org/checkout-api/pull/1042",
+    "status": "success"
+  },
+  {
+    "deployment_id": "deploy-1043",
+    "timestamp": "2025-01-15T14:00:00Z",
+    "service": "checkout-api",
+    "title": "Feature: New Caching Logic",
+    "description": "Introduces write-through caching for order creation to reduce read latency on hot product pages. Adds a persistent DB connection per cache write to guarantee consistency.",
+    "author": "jordan.lee",
+    "commit_sha": "f7a8b9c",
+    "pr_url": "https://github.com/example-org/checkout-api/pull/1043",
+    "status": "success"
+  }
+]

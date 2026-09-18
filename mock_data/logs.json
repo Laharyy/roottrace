@@ -1,0 +1,79 @@
+[
+  {
+    "timestamp": "2025-01-15T13:50:00Z",
+    "level": "INFO",
+    "service": "checkout-api",
+    "message": "System healthy: request latency p99=120ms"
+  },
+  {
+    "timestamp": "2025-01-15T13:52:00Z",
+    "level": "INFO",
+    "service": "checkout-api",
+    "message": "System healthy: request latency p99=118ms"
+  },
+  {
+    "timestamp": "2025-01-15T13:54:00Z",
+    "level": "INFO",
+    "service": "checkout-api",
+    "message": "System healthy: DB pool utilization at 42%"
+  },
+  {
+    "timestamp": "2025-01-15T13:56:00Z",
+    "level": "INFO",
+    "service": "checkout-api",
+    "message": "System healthy: request latency p99=121ms"
+  },
+  {
+    "timestamp": "2025-01-15T13:58:00Z",
+    "level": "INFO",
+    "service": "checkout-api",
+    "message": "System healthy: DB pool utilization at 45%"
+  },
+  {
+    "timestamp": "2025-01-15T14:00:00Z",
+    "level": "INFO",
+    "service": "checkout-api",
+    "message": "System healthy: request latency p99=119ms"
+  },
+  {
+    "timestamp": "2025-01-15T14:01:00Z",
+    "level": "INFO",
+    "service": "checkout-api",
+    "message": "System healthy: DB pool utilization at 51%"
+  },
+  {
+    "timestamp": "2025-01-15T14:02:00Z",
+    "level": "CRITICAL",
+    "service": "checkout-api",
+    "message": "Database Connection Pool Exhausted: 0/50 connections available",
+    "stack_trace": "psycopg2.pool.PoolError: connection pool exhausted\n  at db.connection.acquire(pool.py:88)\n  at cache.write_through.CacheWriter.persist(cache_writer.py:41)\n  at checkout.api.routes.create_order(routes.py:112)"
+  },
+  {
+    "timestamp": "2025-01-15T14:02:15Z",
+    "level": "CRITICAL",
+    "service": "checkout-api",
+    "message": "500 Internal Server Error on POST /api/v2/orders",
+    "stack_trace": "Traceback (most recent call last):\n  File \"routes.py\", line 112, in create_order\n    conn = db.connection.acquire()\n  File \"pool.py\", line 88, in acquire\n    raise PoolError('connection pool exhausted')\npsycopg2.pool.PoolError: connection pool exhausted"
+  },
+  {
+    "timestamp": "2025-01-15T14:02:30Z",
+    "level": "CRITICAL",
+    "service": "checkout-api",
+    "message": "Database Connection Pool Exhausted: 0/50 connections available",
+    "stack_trace": "psycopg2.pool.PoolError: connection pool exhausted\n  at db.connection.acquire(pool.py:88)\n  at cache.write_through.CacheWriter.persist(cache_writer.py:41)\n  at checkout.api.routes.create_order(routes.py:112)"
+  },
+  {
+    "timestamp": "2025-01-15T14:02:45Z",
+    "level": "CRITICAL",
+    "service": "checkout-api",
+    "message": "500 Internal Server Error on POST /api/v2/orders",
+    "stack_trace": "Traceback (most recent call last):\n  File \"routes.py\", line 112, in create_order\n    conn = db.connection.acquire()\n  File \"pool.py\", line 88, in acquire\n    raise PoolError('connection pool exhausted')\npsycopg2.pool.PoolError: connection pool exhausted"
+  },
+  {
+    "timestamp": "2025-01-15T14:03:00Z",
+    "level": "CRITICAL",
+    "service": "checkout-api",
+    "message": "Database Connection Pool Exhausted: 0/50 connections available",
+    "stack_trace": "psycopg2.pool.PoolError: connection pool exhausted\n  at db.connection.acquire(pool.py:88)\n  at cache.write_through.CacheWriter.persist(cache_writer.py:41)\n  at checkout.api.routes.create_order(routes.py:112)"
+  }
+]
