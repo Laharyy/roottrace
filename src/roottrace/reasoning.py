@@ -13,8 +13,8 @@ during development (OpenAI/Anthropic require prepaid credit; OpenRouter and
 Google both offer genuine free tiers). Arguably a stronger "independent
 verification" story too, since Llama, Gemini, and GPT-4o are all trained
 independently by different companies. The architecture is provider-agnostic
-(see call_llama/call_gemini) so swapping providers later is a small,
-contained change.
+(see call_openrouter_free/call_gemini) so swapping providers later is a
+small, contained change.
 """
 
 import json
@@ -22,10 +22,10 @@ import logging
 
 from openai import OpenAI
 from google import genai
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from roottrace.config import settings
 from roottrace.models import RootCauseAnalysis, VerifiedDiagnosis, IncidentTimeline
-from tenacity import retry, stop_after_attempt, wait_exponential
 
 logger = logging.getLogger(__name__)
 
@@ -121,7 +121,10 @@ def call_openrouter_free(prompt: str) -> RootCauseAnalysis:
         ],
         temperature=0.2,
     )
-    return _parse_model_json(response.choices[0].message.content)
+    content = response.choices[0].message.content
+    if content is None:
+        raise ValueError("OpenRouter returned an empty response with no content.")
+    return _parse_model_json(content)
 
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
@@ -137,44 +140,8 @@ def call_gemini(prompt: str) -> RootCauseAnalysis:
         model="gemini-3.6-flash",
         contents=f"{SYSTEM_PROMPT}\n\n{prompt}",
     )
-    return _parse_model_json(response.text)
-
-
-def call_openrouter_free(prompt: str) -> RootCauseAnalysis:
-    """Uses OpenRouter's 'openrouter/free' router model, which automatically
-    selects among currently-available free models (rotates over time as
-    OpenRouter's free lineup changes), rather than hardcoding one specific
-    model slug that can get discontinued or moved to paid with little
-    notice -- exactly what happened with the original llama-3.3-70b:free
-    slug during development. OpenRouter exposes an OpenAI-compatible API,
-    so we reuse the openai SDK, just pointed at a different base_url."""
-    if not settings.openrouter_api_key:
-        raise ReasoningAPIKeyMissing("OPENROUTER_API_KEY is not set.")
-
-    client = OpenAI(
-        api_key=settings.openrouter_api_key,
-        base_url="https://openrouter.ai/api/v1",
-    )
-    response = client.chat.completions.create(
-    model="openrouter/free",
-    messages=[
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": prompt},
-    ],
-    temperature=0.2,
-)
-    return _parse_model_json(response.choices[0].message.content)
-
-
-def call_gemini(prompt: str) -> RootCauseAnalysis:
-    if not settings.gemini_api_key:
-        raise ReasoningAPIKeyMissing("GEMINI_API_KEY is not set.")
-
-    client = genai.Client(api_key=settings.gemini_api_key)
-    response = client.models.generate_content(
-        model="gemini-3.6-flash",
-        contents=f"{SYSTEM_PROMPT}\n\n{prompt}",
-    )
+    if response.text is None:
+        raise ValueError("Gemini returned an empty response with no content.")
     return _parse_model_json(response.text)
 
 
