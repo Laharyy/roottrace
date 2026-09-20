@@ -15,6 +15,7 @@ from roottrace.models import IncidentTimeline
 from roottrace.retrieval import retrieve_similar_postmortems, VoyageAPIKeyMissing
 from roottrace.reasoning import diagnose, ReasoningAPIKeyMissing
 from roottrace.actions import take_action, GitHubConfigMissing
+from roottrace.chatops import notify_slack, SlackWebhookMissing
 
 logging.basicConfig(
     level=logging.INFO,
@@ -119,4 +120,14 @@ def investigate_and_act(dry_run: bool = True) -> dict:
     except GitHubConfigMissing as e:
         raise HTTPException(status_code=503, detail=str(e))
 
-    return {"timeline": timeline, "similar_incidents": matches, "diagnosis": diagnosis, "action": action}
+    slack_delivered = False
+    if settings.slack_webhook_url:
+        slack_delivered = notify_slack(timeline, diagnosis, action)
+
+    return {
+        "timeline": timeline,
+        "similar_incidents": matches,
+        "diagnosis": diagnosis,
+        "action": action,
+        "slack_notified": slack_delivered,
+    }

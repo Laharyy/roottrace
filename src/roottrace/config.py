@@ -19,5 +19,7 @@ class Settings(BaseSettings):
     github_token: Optional[str] = None
     github_repo: Optional[str] = None
 
+    slack_webhook_url: Optional[str] = None
+
 
 settings = Settings()
