@@ -91,3 +91,23 @@ class Postmortem(BaseModel):
     root_cause: str
     fix: str
     tags: list[str] = Field(default_factory=list)
+
+
+class RootCauseAnalysis(BaseModel):
+    """Structured output we require from each reasoning model. Enforcing
+    this shape (rather than accepting free-form text) is what makes it
+    possible to programmatically compare two independent models' answers."""
+    root_cause: str
+    confidence: int = Field(ge=0, le=100)
+    suggested_fix: str
+    evidence: str
+
+class VerifiedDiagnosis(BaseModel):
+    """The final output after cross-checking both models' independent
+    analyses."""
+    llama_analysis: RootCauseAnalysis
+    gemini_analysis: RootCauseAnalysis
+    models_agree: bool
+    combined_confidence: int = Field(ge=0, le=100)
+    final_root_cause: str
+    requires_human_review: bool

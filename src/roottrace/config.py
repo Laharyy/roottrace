@@ -13,5 +13,8 @@ class Settings(BaseSettings):
     postmortems_dir: Path = Path("mock_data/postmortems")
     voyage_api_key: Optional[str] = None
 
+    gemini_api_key: Optional[str] = None
+    openrouter_api_key: Optional[str] = None
+
 
 settings = Settings()

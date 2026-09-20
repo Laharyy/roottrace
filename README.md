@@ -6,7 +6,7 @@
 
 Instead of just alerting "something is wrong" (like traditional monitoring), RootTrace reasons about *why* it went wrong by lining up deployment history against the exact moment a system started failing.
 
-> **Status:** Actively in development. Current release covers data ingestion, correlation, a REST API, and a RAG layer that retrieves similar historical incidents. Multi-model reasoning (GPT-4o + Claude cross-verification) is in progress — see [Roadmap](#roadmap).
+> **Status:** Actively in development. Current release covers data ingestion, correlation, a REST API, RAG retrieval over historical incidents, and dual-model reasoning with cross-verification. Autonomous remediation actions (revert PRs, ChatOps delivery) are in progress — see [Roadmap](#roadmap).
 
 ---
 
@@ -22,7 +22,8 @@ Production incidents are often caused by a recent deploy, but finding *which* de
 2. **Normalize** — converts both into one common event schema using validated Pydantic models
 3. **Correlate** — merges everything into a single chronological timeline and identifies the most recent deployment before the first critical failure
 4. **Retrieve** — embeds the incident's critical events with Voyage AI and searches a ChromaDB vector store of 50 historical postmortems (spanning 10 failure categories) to surface the most similar past incidents and how they were resolved
-5. **Serve** — exposes the whole pipeline as a REST API (`/investigate`), so any system (a dashboard, a Slack bot, another service) can trigger an investigation on demand
+5. **Reason & verify** — sends the same evidence (timeline + retrieved postmortems) to two independently-trained models, which each produce a structured root-cause analysis; if they agree, confidence is combined, if they disagree, the incident is flagged for mandatory human review rather than any automated action being taken
+6. **Serve** — exposes the whole pipeline as a REST API (`/investigate`), so any system (a dashboard, a Slack bot, another service) can trigger an investigation on demand
 
 
 
@@ -42,6 +43,8 @@ Production incidents are often caused by a recent deploy, but finding *which* de
 | Packaging | `src/` layout, `pyproject.toml` | Installable, import-safe package structure |
 | Containerization | Docker | Identical runtime behavior on any machine |
 | CI | GitHub Actions | Tests run automatically on every push |
+| Reasoning | OpenRouter (free-tier router) + Google Gemini | Two independently-trained models for cross-verified diagnosis |
+> **Note on model choices:** the original design called for GPT-4o and Claude 3.5 Sonnet. During development, OpenAI and Anthropic's APIs required prepaid billing with no meaningful free tier, so the dual-model verification is currently implemented with OpenRouter's free model router and Google Gemini instead — genuinely independent training lineages, zero cost. The reasoning module (`src/roottrace/reasoning.py`) is provider-agnostic, so swapping in GPT-4o/Claude is a small, contained change once budget allows.
 
 ---
 
@@ -121,7 +124,7 @@ Tests cover the core correlation logic (`find_suspect_deployment`), including ed
 - [x] REST API with auto-generated docs
 - [x] Dockerized, CI-tested
 - [x] RAG layer over historical incident post-mortems
-- [ ] Multi-model reasoning loop (GPT-4o + Claude cross-verification)
+- [x] Multi-model reasoning loop (GPT-4o + Claude cross-verification)
 - [ ] Autonomous revert-PR / rollback actions
 - [ ] ChatOps delivery via Slack/Teams
 

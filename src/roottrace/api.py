@@ -13,6 +13,7 @@ from roottrace.config import settings
 from roottrace.ingestion import build_incident_timeline
 from roottrace.models import IncidentTimeline
 from roottrace.retrieval import retrieve_similar_postmortems, VoyageAPIKeyMissing
+from roottrace.reasoning import diagnose, ReasoningAPIKeyMissing
 
 logging.basicConfig(
     level=logging.INFO,
@@ -48,10 +49,9 @@ def ingest() -> IncidentTimeline:
 
 @app.post("/investigate")
 def investigate() -> dict:
-    """Runs the full Step 1 + Step 2 pipeline: builds the incident timeline,
-    then retrieves the most similar historical postmortems based on the
-    critical events in that timeline. This is the first real 'AI-assisted'
-    endpoint -- Step 3 will add actual LLM reasoning on top of this."""
+    """Runs the full pipeline: ingestion -> correlation -> RAG retrieval ->
+    dual-model reasoning with cross-verification. This is the complete
+    'autonomous investigation' flow described in the project abstract."""
     try:
         timeline = build_incident_timeline(settings.logs_path, settings.deployments_path)
     except FileNotFoundError as e:
@@ -62,7 +62,7 @@ def investigate() -> dict:
         e.summary for e in timeline.events if e.severity == "CRITICAL"
     ]
     if not critical_summaries:
-        return {"timeline": timeline, "similar_incidents": []}
+        return {"timeline": timeline, "similar_incidents": [], "diagnosis": None}
 
     incident_description = " ".join(critical_summaries)
     if timeline.suspect_deployment:
@@ -74,4 +74,10 @@ def investigate() -> dict:
         logger.exception("Voyage API key missing")
         raise HTTPException(status_code=503, detail=str(e))
 
-    return {"timeline": timeline, "similar_incidents": matches}
+    try:
+        diagnosis = diagnose(timeline, matches)
+    except ReasoningAPIKeyMissing as e:
+        logger.exception("Reasoning API key missing")
+        raise HTTPException(status_code=503, detail=str(e))
+
+    return {"timeline": timeline, "similar_incidents": matches, "diagnosis": diagnosis}
