@@ -14,6 +14,7 @@ from roottrace.ingestion import build_incident_timeline
 from roottrace.models import IncidentTimeline
 from roottrace.retrieval import retrieve_similar_postmortems, VoyageAPIKeyMissing
 from roottrace.reasoning import diagnose, ReasoningAPIKeyMissing
+from roottrace.actions import take_action, GitHubConfigMissing
 
 logging.basicConfig(
     level=logging.INFO,
@@ -81,3 +82,41 @@ def investigate() -> dict:
         raise HTTPException(status_code=503, detail=str(e))
 
     return {"timeline": timeline, "similar_incidents": matches, "diagnosis": diagnosis}
+
+
+@app.post("/investigate-and-act")
+def investigate_and_act(dry_run: bool = True) -> dict:
+    """Runs the full pipeline AND evaluates whether to take autonomous
+    action. dry_run defaults to True via the query parameter -- calling
+    this endpoint with no arguments NEVER takes a real action. A caller
+    must explicitly pass ?dry_run=false to enable real GitHub writes."""
+    try:
+        timeline = build_incident_timeline(settings.logs_path, settings.deployments_path)
+    except FileNotFoundError as e:
+        logger.exception("Data file missing during ingestion")
+        raise HTTPException(status_code=500, detail=f"Data file not found: {e}")
+
+    critical_summaries = [e.summary for e in timeline.events if e.severity == "CRITICAL"]
+    if not critical_summaries:
+        return {"timeline": timeline, "similar_incidents": [], "diagnosis": None, "action": None}
+
+    incident_description = " ".join(critical_summaries)
+    if timeline.suspect_deployment:
+        incident_description += f" Deployed shortly before: {timeline.suspect_deployment.title}."
+
+    try:
+        matches = retrieve_similar_postmortems(incident_description, top_k=3)
+    except VoyageAPIKeyMissing as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+    try:
+        diagnosis = diagnose(timeline, matches)
+    except ReasoningAPIKeyMissing as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+    try:
+        action = take_action(diagnosis, dry_run=dry_run)
+    except GitHubConfigMissing as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+    return {"timeline": timeline, "similar_incidents": matches, "diagnosis": diagnosis, "action": action}

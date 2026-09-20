@@ -16,5 +16,8 @@ class Settings(BaseSettings):
     gemini_api_key: Optional[str] = None
     openrouter_api_key: Optional[str] = None
 
+    github_token: Optional[str] = None
+    github_repo: Optional[str] = None
+
 
 settings = Settings()

@@ -111,3 +111,12 @@ class VerifiedDiagnosis(BaseModel):
     combined_confidence: int = Field(ge=0, le=100)
     final_root_cause: str
     requires_human_review: bool
+
+
+class RemediationAction(BaseModel):
+    """Result of the autonomous action layer's decision and (if taken) the
+    real action performed."""
+    action_taken: bool
+    dry_run: bool
+    reason: str
+    pr_url: Optional[str] = None
