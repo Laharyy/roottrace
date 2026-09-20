@@ -76,3 +76,18 @@ class IncidentTimeline(BaseModel):
     first_critical_event_at: Optional[datetime] = None
     suspect_deployment: Optional[SuspectDeployment] = None
     events: list[TimelineEvent] = Field(default_factory=list)
+
+
+class Postmortem(BaseModel):
+    """A single historical incident write-up, used as retrieval context for
+    the RAG layer. summary/root_cause/fix are what gets embedded -- tags and
+    title are metadata for humans and filtering, not part of the semantic
+    search itself (see the Part C discussion on why tags alone don't drive
+    retrieval)."""
+    id: str
+    title: str
+    date: str
+    summary: str
+    root_cause: str
+    fix: str
+    tags: list[str] = Field(default_factory=list)

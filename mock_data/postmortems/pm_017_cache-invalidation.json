@@ -1,0 +1,14 @@
+{
+  "id": "pm_017",
+  "title": "Stale data served by payment-service due to cache invalidation bug",
+  "date": "2024-10-03",
+  "summary": "Users reported seeing outdated data from payment-service for up to 4 hours after updates, because a recent refactor of the cache invalidation logic silently broke the invalidation trigger for one code path.",
+  "root_cause": "A refactor renamed the event that triggers cache invalidation, but one caller was missed and continued publishing the old event name, which no longer had a subscriber.",
+  "fix": "Fixed the missed caller, and added an integration test that asserts every code path which mutates cached data actually publishes an invalidation event.",
+  "tags": [
+    "caching",
+    "cache-invalidation",
+    "stale-data",
+    "payment-service"
+  ]
+}

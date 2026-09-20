@@ -1,14 +1,5 @@
-"""
-Centralized, typed configuration for RootTrace.
-
-Why this exists: hardcoding file paths (and, from Step 2 onward, API keys)
-directly in code is both inflexible and a security risk once secrets are
-involved. pydantic-settings reads values from a .env file (or real
-environment variables in production) and validates them with the same
-fail-fast approach as models.py.
-"""
-
 from pathlib import Path
+from typing import Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -18,6 +9,9 @@ class Settings(BaseSettings):
     logs_path: Path = Path("mock_data/logs.json")
     deployments_path: Path = Path("mock_data/deployment_history.json")
     output_path: Path = Path("incident_timeline.json")
+
+    postmortems_dir: Path = Path("mock_data/postmortems")
+    voyage_api_key: Optional[str] = None
 
 
 settings = Settings()

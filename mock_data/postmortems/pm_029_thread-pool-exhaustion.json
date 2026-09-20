@@ -1,0 +1,15 @@
+{
+  "id": "pm_029",
+  "title": "checkout-api request timeouts due to thread pool exhaustion",
+  "date": "2023-09-08",
+  "summary": "checkout-api began timing out on the majority of requests after a downstream dependency became slow. Because calls to that dependency were synchronous and blocking, the service's thread pool filled with threads waiting on it, starving unrelated requests.",
+  "root_cause": "Calls to the slow downstream dependency had no timeout configured, so a single slow dependency could exhaust the entire thread pool indefinitely.",
+  "fix": "Added an explicit timeout and circuit breaker around the downstream call, so a slow dependency degrades gracefully instead of exhausting shared resources.",
+  "tags": [
+    "thread-pool",
+    "timeout",
+    "circuit-breaker",
+    "resource-exhaustion",
+    "checkout-api"
+  ]
+}

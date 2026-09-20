@@ -1,0 +1,14 @@
+{
+  "id": "pm_008",
+  "title": "notification-service outage due to disk space exhaustion from log accumulation",
+  "date": "2023-11-08",
+  "summary": "notification-service stopped accepting writes after its disk filled up. Investigation found that a verbose debug-logging flag left enabled after a previous incident investigation had been writing uncompressed logs at a much higher rate than normal.",
+  "root_cause": "A debug logging flag enabled during a prior investigation was never reverted, and no alert existed for disk usage trending upward over days rather than spiking suddenly.",
+  "fix": "Reverted the logging flag, added log rotation with compression, and added a slow-trending disk usage alert in addition to the existing near-full alert.",
+  "tags": [
+    "disk-space",
+    "logging",
+    "infrastructure",
+    "notification-service"
+  ]
+}

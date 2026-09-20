@@ -1,0 +1,15 @@
+{
+  "id": "pm_005",
+  "title": "Intermittent 502 errors in recommendation-service due to DNS resolution failures",
+  "date": "2023-06-04",
+  "summary": "Users intermittently received 502 Bad Gateway errors from recommendation-service. The pattern was sporadic and did not correlate with any deployment. Investigation traced it to the internal DNS resolver occasionally timing out under load.",
+  "root_cause": "The DNS resolver's cache TTL was too short relative to query volume, causing frequent cache misses that overloaded the resolver during peak traffic.",
+  "fix": "Increased the DNS cache TTL and added a local DNS caching sidecar to each service pod to absorb query volume without hitting the central resolver every time.",
+  "tags": [
+    "dns",
+    "networking",
+    "502-error",
+    "infrastructure",
+    "recommendation-service"
+  ]
+}

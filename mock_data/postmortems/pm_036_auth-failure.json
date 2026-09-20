@@ -1,0 +1,15 @@
+{
+  "id": "pm_036",
+  "title": "Widespread 401 errors in user-profile-service after token signing key rotation",
+  "date": "2024-01-13",
+  "summary": "Following a scheduled rotation of the JWT signing key, user-profile-service began rejecting a large fraction of valid requests with 401 Unauthorized, because tokens issued just before the rotation could no longer be verified.",
+  "root_cause": "The key rotation process removed the old signing key immediately instead of keeping it valid for verification during a grace period, invalidating still-live tokens.",
+  "fix": "Changed the rotation process to keep the previous key valid for verification (but not issuing) for 2 hours after rotation, giving in-flight tokens time to expire naturally.",
+  "tags": [
+    "auth",
+    "jwt",
+    "key-rotation",
+    "401-error",
+    "user-profile-service"
+  ]
+}

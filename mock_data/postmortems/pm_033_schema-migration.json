@@ -1,0 +1,14 @@
+{
+  "id": "pm_033",
+  "title": "Request failures in notification-service after a database schema migration",
+  "date": "2024-03-14",
+  "summary": "A migration renamed a column that notification-service's ORM layer still referenced by its old name, causing requests to fail with a 'column not found' error immediately after the migration ran.",
+  "root_cause": "The migration and the application code deploy were not coordinated -- the schema change went live before the corresponding code update, creating a window where old code queried a column that no longer existed.",
+  "fix": "Adopted a two-phase migration strategy: add the new column and dual-write to both old and new columns first, deploy the code update, then drop the old column in a later migration.",
+  "tags": [
+    "database-migration",
+    "schema-change",
+    "deployment-coordination",
+    "notification-service"
+  ]
+}

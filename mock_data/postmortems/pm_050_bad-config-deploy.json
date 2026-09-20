@@ -1,0 +1,14 @@
+{
+  "id": "pm_050",
+  "title": "search-service outage from a misconfigured environment variable at deploy time",
+  "date": "2023-11-09",
+  "summary": "A deployment to search-service shipped with an incorrect value for a feature-flag environment variable, unintentionally enabling a half-finished feature in production and causing widespread request failures.",
+  "root_cause": "The deployment pipeline did not validate environment variable values against an allowed schema before rollout, so a typo'd config value reached production undetected.",
+  "fix": "Added config validation as a required pre-deploy check, and staged the rollout so config changes reach a small percentage of traffic before going fully live.",
+  "tags": [
+    "configuration",
+    "deployment",
+    "feature-flag",
+    "search-service"
+  ]
+}

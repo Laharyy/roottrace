@@ -5,3 +5,5 @@ __pycache__/
 .pytest_cache/
 incident_timeline.json
 *.egg-info/
+chroma_db/
+.vscode/

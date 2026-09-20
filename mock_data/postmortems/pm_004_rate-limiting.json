@@ -1,0 +1,14 @@
+{
+  "id": "pm_004",
+  "title": "Downstream rate-limiting causing pricing-service failures",
+  "date": "2024-01-25",
+  "summary": "A traffic spike of roughly 6x drove pricing-service to exceed its rate limit with a third-party provider. Requests beyond the limit received 429 Too Many Requests responses, which were not handled gracefully and surfaced as generic failures to users.",
+  "root_cause": "No client-side rate limiting or backoff/retry logic existed for calls to the provider, so traffic spikes translated directly into a wall of rejected requests.",
+  "fix": "Implemented exponential backoff with jitter for 429 responses, and added a local token-bucket rate limiter tuned just under the provider's published limit.",
+  "tags": [
+    "rate-limiting",
+    "third-party-api",
+    "traffic-spike",
+    "pricing-service"
+  ]
+}

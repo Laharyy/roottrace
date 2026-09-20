@@ -1,0 +1,15 @@
+{
+  "id": "pm_032",
+  "title": "search-service crash due to gradual memory leak",
+  "date": "2023-07-24",
+  "summary": "search-service began crashing with OutOfMemoryError roughly every 2 hours after a deployment that added an in-memory result cache. The cache had no eviction policy, so it grew unbounded until the process ran out of heap space.",
+  "root_cause": "A newly introduced LRU cache implementation was missing its max-size configuration, so it accepted unlimited entries instead of evicting old ones.",
+  "fix": "Set an explicit max_size and TTL on the cache, and added a dashboard panel tracking heap usage over time to catch slow leaks before they cause a crash.",
+  "tags": [
+    "memory-leak",
+    "caching",
+    "oom",
+    "crash-loop",
+    "search-service"
+  ]
+}

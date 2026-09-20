@@ -1,0 +1,15 @@
+{
+  "id": "pm_041",
+  "title": "shipping-service outage due to DB connection pool exhaustion",
+  "date": "2023-07-22",
+  "summary": "A caching feature deployed to shipping-service introduced a code path that opened a new database connection on every write but never released it back to the pool. Within minutes of deployment, the connection pool was fully exhausted (100/100 connections in use), causing requests to fail with 500 errors.",
+  "root_cause": "The new logic acquired a DB connection but never explicitly released it back to the pool after use, since the code assumed a context manager would handle it automatically. It did not.",
+  "fix": "Wrapped connection acquisition in a proper context manager to guarantee release even on exceptions, and added a pool utilization alert at 80% to catch this class of bug earlier.",
+  "tags": [
+    "database",
+    "connection-pool",
+    "caching",
+    "resource-leak",
+    "shipping-service"
+  ]
+}
